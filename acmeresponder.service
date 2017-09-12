@@ -1,0 +1,9 @@
+[Unit]
+Description=ACME Responder
+
+[Service]
+ExecStart=/usr/sbin/acmeresponder
+User=dehydrated
+Restart=always
+StandardOutput=syslog
+StandardError=syslog

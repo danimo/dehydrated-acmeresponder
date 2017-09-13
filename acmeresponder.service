@@ -3,6 +3,7 @@ Description=ACME Responder
 
 [Service]
 ExecStart=/usr/sbin/acmeresponder
+EnvironmentFile=/etc/dehydrated/config
 User=dehydrated
 Restart=always
 StandardOutput=syslog

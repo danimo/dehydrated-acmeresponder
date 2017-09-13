@@ -1,6 +1,6 @@
 ## Dehydrated ACME Responder
 
-ACME Responder is a systemd socket-activated web server, currently focussed to
+ACME Responder is a systemd socket activated web server, currently focused to
 run with the dehyrated ACME client. It will expose the response to the ACME
 challenges at .well-known/acme-challenges directory. It will return 404 for any
 other requested path.

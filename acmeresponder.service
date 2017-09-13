@@ -1,5 +1,7 @@
 [Unit]
 Description=ACME Responder
+BindsTo=dehydrated-update.service
+Before=dehydrated-update.service
 
 [Service]
 ExecStart=/usr/sbin/acmeresponder

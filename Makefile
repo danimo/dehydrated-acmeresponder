@@ -1,12 +1,9 @@
 PREFIX=/usr/local
+UNITDIR=/etc/systemd/system
 
 install:
 	install -m 755 acmeresponder.py $(DESTDIR)$(PREFIX)/sbin/acmeresponder
-	install -m 644 acmeresponder.service $(DESTDIR)/etc/systemd/system/acmeresponder.service 
-	install -m 644 acmeresponder.socket  $(DESTDIR)/etc/systemd/system/acmeresponder.socket
-
-enable: install
-	systemctl daemon-reload
-	systemctl enable acmeresponder.socket
+	install -m 644 acmeresponder.service $(DESTDIR)$(UNITDIR)/acmeresponder.service 
+	install -m 644 acmeresponder.socket  $(DESTDIR)$(UNITDIR)/acmeresponder.socket
 
 .PHONY=install

@@ -1,5 +1,6 @@
 [Unit]
 Description=ACME Responder
+StopWhenUnneeded=true
 
 [Socket]
 ListenStream=80

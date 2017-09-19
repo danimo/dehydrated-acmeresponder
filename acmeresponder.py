@@ -55,9 +55,9 @@ class AcmeHTTPRequestHandler(BaseHTTPRequestHandler):
                 except IOError as err:
                         self.send_response(403, 'Forbidden')
                         self.log_error('Error:', err)
-#                except:
-#                        self.send_response(500, 'Internal Server Error')
-#                        self.log_error('Error:')
+                except:
+                        self.send_response(500, 'Internal Server Error')
+                        self.log_error('Error:')
                 return
 
         self.send_response(404, 'Not Found')

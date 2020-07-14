@@ -23,11 +23,11 @@ DEFAULT_CHALLENGE_DIR = "/var/lib/acme-challenge"
 class AcmeHTTPRequestHandler(BaseHTTPRequestHandler):
     """ A HTTP request handler that will only serve acme requests"""
 
-    def get_challengedir_file(self, filename):
+    def get_challengedir(self):
         challenge_dir = os.getenv("WELLKNOWN")
         if challenge_dir is None or challenge_dir == '':
             challenge_dir = DEFAULT_CHALLENGE_DIR
-        return challenge_dir + '/' + filename
+        return challenge_dir
 
     def is_base64url(self, string):
         result = re.match("^([A-Fa-f0-9-_])*$", string)
@@ -45,7 +45,7 @@ class AcmeHTTPRequestHandler(BaseHTTPRequestHandler):
             segments = os.path.normpath(self.path).split("/")[1:]
             if not (len(segments) == 3 and segments[0:2] == ['.well-known', 'acme-challenge'] and self.is_base64url(segments[2])):
                 raise IOError("Path invalid acme challenge: %s" % self.path)
-            fetchpath = os.path.join(DEFAULT_CHALLENGE_DIR, segments[2])
+            fetchpath = os.path.join(get_challengedir(), segments[2])
             with open(fetchpath, 'rb') as r:
                 response = r.read()
                 length = len(response)

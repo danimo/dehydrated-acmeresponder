@@ -6,6 +6,7 @@
 # This script is licensed under The MIT License (see LICENSE for more information).
 
 import os
+import re
 import socket
 import threading
 import logging
@@ -18,7 +19,6 @@ from socketserver import ThreadingMixIn
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 DEFAULT_CHALLENGE_DIR = "/var/lib/acme-challenge"
-CHALLENGEPATH = "/.well-known/acme-challenge"
 
 class AcmeHTTPRequestHandler(BaseHTTPRequestHandler):
     """ A HTTP request handler that will only serve acme requests"""
@@ -29,6 +29,10 @@ class AcmeHTTPRequestHandler(BaseHTTPRequestHandler):
             challenge_dir = DEFAULT_CHALLENGE_DIR
         return challenge_dir + '/' + filename
 
+    def is_base64url(self, string):
+        result = re.match("^([A-Fa-f0-9-_])*$", string)
+        return result is not None
+
     def do_HEAD(self):
             self.handle_request(False)
 
@@ -36,33 +40,30 @@ class AcmeHTTPRequestHandler(BaseHTTPRequestHandler):
             self.handle_request(True)
 
     def handle_request(self, write_file):
-        normpath = os.path.normpath(self.path)
-        if normpath.startswith(CHALLENGEPATH):
-            normpath = normpath.replace(CHALLENGEPATH, '')
-            logging.info('normpath %s' % (normpath,))
-            if (os.path.exists(self.get_challengedir_file(normpath))):
-                try:
-                    with open(self.get_challengedir_file(normpath), 'rb') as r:
-                        response = r.read()
-                        length = len(response)
-                        self.send_response(200, 'OK')
-                        self.send_header('Content-type', 'text/plain')
-                        self.send_header('Content-Length', length)
-                        self.log_request(200, length)
-                        self.end_headers()
-                        if write_file == True:
-                            self.wfile.write(response)
-                except IOError as err:
-                        self.send_response(403, 'Forbidden')
-                        self.log_error('Error:', err)
-                except:
-                        self.send_response(500, 'Internal Server Error')
-                        self.log_error('Error:')
-                return
-
-        self.send_response(404, 'Not Found')
-        self.log_request(404)
-        self.end_headers()
+        try:
+            # Drop first segment, as it's always empty
+            segments = os.path.normpath(self.path).split("/")[1:]
+            if not (len(segments) == 3 and segments[0:2] == ['.well-known', 'acme-challenge'] and self.is_base64url(segments[2])):
+                raise IOError("Path invalid acme challenge: %s" % self.path)
+            fetchpath = os.path.join(DEFAULT_CHALLENGE_DIR, segments[2])
+            with open(fetchpath, 'rb') as r:
+                response = r.read()
+                length = len(response)
+                self.send_response(200, 'OK')
+                self.send_header('Content-type', 'text/plain')
+                self.send_header('Content-Length', length)
+                self.log_request(200, length)
+                self.end_headers()
+                if write_file == True:
+                    self.wfile.write(response)
+        except IOError as err:
+            self.send_response(404, 'File not found')
+            #self.log_error('Error: %s' % err)
+            self.end_headers()
+        except:
+            self.send_response(500, 'Internal Server Error')
+            #self.log_error('Error: %s' % err)
+            self.end_headers()
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     pass

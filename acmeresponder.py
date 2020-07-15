@@ -45,7 +45,7 @@ class AcmeHTTPRequestHandler(BaseHTTPRequestHandler):
             segments = os.path.normpath(self.path).split("/")[1:]
             if not (len(segments) == 3 and segments[0:2] == ['.well-known', 'acme-challenge'] and self.is_base64url(segments[2])):
                 raise IOError("Path invalid acme challenge: %s" % self.path)
-            fetchpath = os.path.join(get_challengedir(), segments[2])
+            fetchpath = os.path.join(self.get_challengedir(), segments[2])
             with open(fetchpath, 'rb') as r:
                 response = r.read()
                 length = len(response)

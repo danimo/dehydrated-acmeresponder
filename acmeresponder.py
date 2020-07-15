@@ -30,7 +30,7 @@ class AcmeHTTPRequestHandler(BaseHTTPRequestHandler):
         return challenge_dir
 
     def is_base64url(self, string):
-        result = re.match("^([A-Fa-f0-9-_])*$", string)
+        result = re.match("^([A-Za-z0-9-_])*$", string)
         return result is not None
 
     def do_HEAD(self):

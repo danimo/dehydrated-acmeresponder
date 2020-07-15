@@ -5,7 +5,5 @@ After=acmeresponder.socket
 [Service]
 ExecStart=/usr/sbin/acmeresponder
 EnvironmentFile=/etc/dehydrated/config
-User=dehydrated
+User=nobody
 Restart=always
-StandardOutput=syslog
-StandardError=syslog
